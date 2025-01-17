@@ -11,7 +11,8 @@ import { BankAccountId, BankId } from "@/types/Common";
 
     constructor(properties){
         this.id = uuid();
-        this.isNegativeAllowed = properties.isNegativeAllowed
+        this.isNegativeAllowed = properties.isNegativeAllowed || false
+        this.bankAccounts = {}
     }
     static create(properties?: any){
         return new Bank(properties || {})
