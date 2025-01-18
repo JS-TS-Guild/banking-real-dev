@@ -14,6 +14,9 @@ class BankAccount {
     getBalance(){
         return this.balance
     }
+    setBalance(balance){
+        this.balance = balance
+    }
     getId(){
         return this.id
     }

@@ -1,7 +1,7 @@
 import { BankAccountId, UserId } from "@/types/Common";
-import BankAccount from "./bank-account";
 
 import { v4 as uuid } from "uuid"
+import GlobalRegistry from "@/services/GlobalRegistry";
 class User {
 
     id: UserId;
@@ -13,7 +13,9 @@ class User {
         this.bankAccounts = bankAccounts
     }
     static create (name, bankAccounts){
-        return new User(name, bankAccounts)
+        const user = new User(name, bankAccounts);
+        GlobalRegistry.addUser(user)
+        return user
     }
 
     getId(){

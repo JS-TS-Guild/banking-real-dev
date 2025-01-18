@@ -1,6 +1,8 @@
 import { v4 as uuid } from "uuid"
 import BankAccount from "./bank-account";
 import { BankAccountId, BankId } from "@/types/Common";
+import GlobalRegistry from "@/services/GlobalRegistry";
+import TransactionService from "@/services/TransactionService";
 
  class Bank {
     id: BankId;    
@@ -15,7 +17,9 @@ import { BankAccountId, BankId } from "@/types/Common";
         this.bankAccounts = {}
     }
     static create(properties?: any){
-        return new Bank(properties || {})
+        const bank = new Bank(properties || {});
+        GlobalRegistry.addBank(bank)
+        return bank
     }
     getId(){
         return this.id;
@@ -29,8 +33,39 @@ import { BankAccountId, BankId } from "@/types/Common";
     getAccount(id){
         return this.bankAccounts[id]
     }
-    send(user1, user2, amount){
+    send(senderUserId, receiverUserId, amount, receiverBankId?){
+        const sender = GlobalRegistry.getUser(senderUserId)
+        const receiver = GlobalRegistry.getUser(receiverUserId)
+        const senderAccountsIds = sender.bankAccounts;
+        const receiverAccountsIds = receiver.bankAccounts;
 
+        const sendingAccounts = [];
+        let receivingAccount = null;
+
+        let bank: Bank = this;
+        if(receiverBankId) {
+            const allBanks = GlobalRegistry.getAllBanks();
+            bank = allBanks[receiverBankId]
+        }
+    
+        for (let bankAccountId of receiverAccountsIds){
+            let bankAccount = bank.getAccount(bankAccountId);
+            if(bankAccount) {
+                receivingAccount = bankAccount;
+                break;
+            }
+        }
+        
+        
+        for(let bankAccountId of senderAccountsIds){
+            let bankAccount = this.getAccount(bankAccountId);
+            if(bankAccount) {
+                sendingAccounts.push(bankAccount);
+            }
+        }
+
+        let success = TransactionService.transaction(sendingAccounts, receivingAccount, amount, this.isNegativeAllowed)
+        if(!success) throw Error("Insufficient funds")
     }
 }
 export default Bank
