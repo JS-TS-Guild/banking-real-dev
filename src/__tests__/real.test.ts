@@ -37,16 +37,15 @@ describe('Bank Transfer Tests', () => {
 
   it('should allow transfer with negative balance', () => {
     const { bank, bankAllowsNegative, aliceUserId, bobUserId, aliceAccountAllowsNegativeId, bobAccountId } = fixtures;
-
     const aliceAccountAllowsNegative = bankAllowsNegative.getAccount(aliceAccountAllowsNegativeId);
     const bobBankId = bank.getId();
     const bobAccount = bank.getAccount(bobAccountId);
+
 
     expect(aliceAccountAllowsNegative.getBalance()).toBe(200);
     expect(bobAccount.getBalance()).toBe(500);
 
     bankAllowsNegative.send(aliceUserId, bobUserId, 500, bobBankId);
-
     expect(aliceAccountAllowsNegative.getBalance()).toBe(-300);
     expect(bobAccount.getBalance()).toBe(1000);
   });
